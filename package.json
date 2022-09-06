@@ -2,9 +2,9 @@
   "name": "api-project",
   "version": "1.0.0",
   "description": "REST API project for the 6th sprint of my Compass.UOL front-end internship program",
-  "main": "server.js",
+  "main": "index.js",
   "scripts": {
-    "dev": "nodemon server.js"
+    "dev": "nodemon src/index.js"
   },
   "author": "https://github.com/jonathan010603",
   "license": "ISC",
