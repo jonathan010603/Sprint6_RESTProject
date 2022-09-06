@@ -1,18 +1,18 @@
 const Users = require('./models/UsersModel.js');
-const validate = require('./validateUserData.js');
+const mongoose = require('mongoose');
 
 exports.addUser = (req, res) => {
-    console.log("working")
+        let user = new Users(req.body);
+        user.save(err => {
+            err
+                ? res.status(500).send({message: `Failed to add user... ${err.message}`})
+                : res.status(201).send(user.toJSON())
+        })
 }
 
 exports.getUserById = async (req, res) => {
-    if (!mongoose.Types.ObjectId.isValid(req.params.id)) 
-        return res.status(404).json({ message: "It's not a valid Id." });
-
-    const user = await Users.findById(req.params.id);
-
-    if (!user) 
-        return res.status(404).json({ message: "No data related to this id." });
+    try { const user = await Users.findById(req.params.id) } 
+    catch (err) { return res.status(404).json({ message: "Id not found" }) }
 
     return res.json({ message: "Success" });
 }
