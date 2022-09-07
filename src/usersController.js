@@ -1,6 +1,16 @@
 const Users = require('./models/UsersModel.js');
 const mongoose = require('mongoose');
 
+const throwError = (e, status) => {throw {message: e, status: status}}
+
+const errorHandler = (e, res) => e.name === "CastError" 
+    ? res.status(404).json({ message: "Not a valid Id" })
+    : res.status(e.status || 500).json({ message: e.message })
+
+const checkModel = (model, res, successMsg) => !model 
+    ? res.status(404).json({ message: "User not found" }) 
+    : res.status(200).json({ message: successMsg })
+
 exports.addUser = (req, res) => {
     let user = new Users(req.body);
     user.save(err => err
@@ -30,27 +40,33 @@ exports.getUsers = async (req, res) => {
 }
 
 exports.getUserByName = async (req, res, queryName) => {
-    Users.find({ 'name': queryName }, {}, (err, users) => {
-        err && res.json({ err })
-        if (users.length === 0) return res.status(404).json({ message: "Name not found" })
-        return res.status(200).json(users)
-    });
+    await Users.find({ 'name': queryName }, {})
+        .then(users => users.length === 0 
+            ? throwError("Name not found", 404) 
+            : res.status(200).json(users)
+        )
+        .catch(e => errorHandler(e, res))
 }
 
 exports.getUserById = async (req, res) => {
-    try { 
-        const user = await Users.findById(req.params.id) 
-        res.json({ user });
-    } 
-    catch (err) { res.status(404).json({ message: "User not found" }) }
+    await Users.findById(req.params.id) 
+        .then(user => user === null 
+            ? throwError("User not found", 404) 
+            : res.status(200).json(user)
+        )
+        .catch(e => errorHandler(e, res))
 }
 
 exports.updateUser = async (req, res) => {
     const id = req.params.id;
-    Users.findByIdAndUpdate(id, {$set: req.body}, {runValidators: true}, err => !err
-        ? res.status(200).json({ message: "User updated successfully" })
-        : res.status(500).json({ message: err.message })
-    )
+    await Users.findByIdAndUpdate(id, {$set: req.body}, {runValidators: true})
+        .then(model => checkModel(model, res, 'User updated successfully'))
+        .catch(e => errorHandler(e, res))
 } 
 
-//exports.deleteUser = async (req, res) => {}
+exports.deleteUser = async (req, res) => {
+    const id = req.params.id;
+    await Users.findByIdAndDelete(id)
+        .then(model => checkModel(model, res, 'User deleted successfully'))
+        .catch(e => errorHandler(e, res))
+}
