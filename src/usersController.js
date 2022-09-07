@@ -42,5 +42,15 @@ exports.getUserById = async (req, res) => {
         const user = await Users.findById(req.params.id) 
         res.json({ user });
     } 
-    catch (err) { res.status(404).json({ message: "Id not found" }) }
+    catch (err) { res.status(404).json({ message: "User not found" }) }
 }
+
+exports.updateUser = async (req, res) => {
+    const id = req.params.id;
+    Users.findByIdAndUpdate(id, {$set: req.body}, {runValidators: true}, err => !err
+        ? res.status(200).json({ message: "User updated successfully" })
+        : res.status(500).json({ message: err.message })
+    )
+} 
+
+//exports.deleteUser = async (req, res) => {}
