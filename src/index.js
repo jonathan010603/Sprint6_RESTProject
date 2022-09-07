@@ -1,7 +1,6 @@
-const express = require('express');
-const router = require('./routes.js');
-
-const mongoose = require("mongoose");
+import express from 'express';
+import router from './routes.js';
+import mongoose from "mongoose";
 const uri = process.env.MONGO_URI || 'mongodb+srv://testing:testingcompass@cluster0.9i6srfv.mongodb.net/test';
 
 mongoose.connect(uri)

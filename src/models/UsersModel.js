@@ -1,4 +1,4 @@
-const mongoose = require("mongoose");
+import mongoose from "mongoose";
 
 const userSchema = new mongoose.Schema ({
     name: {type: String, required: true},
@@ -15,4 +15,4 @@ const userSchema = new mongoose.Schema ({
     zipCode: {type: String, required: true, minLength: 8}
 });
 
-module.exports = mongoose.model('users', userSchema);
+export default mongoose.model('users', userSchema);
