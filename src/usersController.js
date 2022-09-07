@@ -2,32 +2,45 @@ const Users = require('./models/UsersModel.js');
 const mongoose = require('mongoose');
 
 exports.addUser = (req, res) => {
-        let user = new Users(req.body);
-        user.save(err => err
-            ? res.status(500).send({ message: `Failed to add user... ${err.message}` })
-            : res.status(201).send(user.toJSON())
-        );
+    let user = new Users(req.body);
+    user.save(err => err
+        ? res.status(500).send({ message: `Failed to add user... ${err.message}` })
+        : res.status(201).send(user.toJSON())
+    );
 }
 
 exports.getUsers = async (req, res) => {
-    const { page = 1, limit = 3 } = req.query;
+    if (req.query.name !== undefined) return this.getUserByName(req, res, req.query.name)
 
     try {
+        const docsCount = await Users.countDocuments();
+        const totalPages = Math.ceil(docsCount / 3);
+        const queryPage = req.query.page;
+        if (queryPage > totalPages) return res.status(404).json({ message: "Page not found" })
+
+        const currentPage = parseInt(queryPage) || 1;
         const users = await Users.find()
-            .limit(limit * 1)
-            .skip((page - 1) * limit)
+            .limit(3)
+            .skip((currentPage - 1) * 3)
             .exec();
 
-        const count = await Users.countDocuments();
-        const totalPages = Math.ceil(count / limit);
-        res.json({ users, totalPages, currentPage: page });
+        res.json({ users, totalPages, currentPage });
     }
     catch (err) { res.status(500).send({ message: err.message }) }
 }
 
+exports.getUserByName = async (req, res, queryName) => {
+    Users.find({ 'name': queryName }, {}, (err, users) => {
+        err && res.json({ err })
+        if (users.length === 0) return res.status(404).json({ message: "Name not found" })
+        return res.status(200).json(users)
+    });
+}
+
 exports.getUserById = async (req, res) => {
-    try { const user = await Users.findById(req.params.id) } 
-    catch (err) { return res.status(404).json({ message: "Id not found" }) }
-    
-    return res.json({ message: "Success" });
+    try { 
+        const user = await Users.findById(req.params.id) 
+        res.json({ user });
+    } 
+    catch (err) { res.status(404).json({ message: "Id not found" }) }
 }
