@@ -10,7 +10,7 @@ export const errorHandler = (e, res) => e.name === "CastError"
 
 export const checkModel = (model, res, successMsg, code) => !model
     ? res.status(404).json({ message: "User not found" })
-    : res.status(200 || code).json({ message: successMsg })
+    : res.status(code || 200).json({ message: successMsg })
 
 export const formatDate = birth => {
     const yyyy = birth.getFullYear();
@@ -20,7 +20,7 @@ export const formatDate = birth => {
     dd < 10 && (dd = `0${dd}`);
     mm < 10 && (mm = `0${mm}`);
 
-    return (`${dd}/${mm}/${yyyy}`);
+    return (`${mm}/${dd}/${yyyy}`);
 }
 
 export const validateBirthDate = birthDate => {
