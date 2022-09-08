@@ -38,7 +38,7 @@ export const getPagination = async (res, users, page = 1) => {
     const start = (page - 1) * limit;
     const end = page * limit;
 
-    const result = users.slice(start, end)
+    const result = users.slice(start, end);
     if (result.length === 0) return throwError("Page not found", 404);
 
     return res.status(200).json({ result, totalPages: total, currentPage: parseInt(page) })

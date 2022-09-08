@@ -3,12 +3,14 @@ import mongoose from "mongoose";
 
 const userSchema = new mongoose.Schema({
     name: { type: String, required: true },
-    cpf: { type: String, required: true, unique: true, 
-        set: raw => onlyNum(raw), minLength: 11, maxLength: 11 
+    cpf: {
+        type: String, required: true, unique: true,
+        set: raw => onlyNum(raw), minLength: 11, maxLength: 11
     },
-    birthDate: { type: String, required: true, 
-        validate: [validateBirthDate, "User must be 18 or older"], 
-        set: rawDate => formatDate(new Date(rawDate)) 
+    birthDate: {
+        type: String, required: true,
+        validate: [validateBirthDate, "User must be 18 or older"],
+        set: rawDate => formatDate(new Date(rawDate))
     },
     email: {
         type: String, required: true,
