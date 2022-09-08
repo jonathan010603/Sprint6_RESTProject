@@ -1,3 +1,7 @@
+export const onlyNum = raw => raw.replace(/\D/g, "");
+
+export const nameLike = queryName => new RegExp(queryName, 'i');
+
 export const throwError = (e, status) => { throw { message: e, status: status } }
 
 export const errorHandler = (e, res) => e.name === "CastError"
@@ -8,14 +12,34 @@ export const checkModel = (model, res, successMsg, code) => !model
     ? res.status(404).json({ message: "User not found" })
     : res.status(200 || code).json({ message: successMsg })
 
-export const onlyNum = raw => raw.replace(/\D/g, "");
+export const formatDate = birth => {
+    const yyyy = birth.getFullYear();
+    let mm = birth.getMonth() + 1;
+    let dd = birth.getDate();
 
-export const nameLike = queryName => new RegExp(queryName, 'i');
+    dd < 10 && (dd = `0${dd}`);
+    mm < 10 && (mm = `0${mm}`);
 
-export const validateBirthDate = (birth) => {
-    let birthDate = new Date(birth);
+    return (`${dd}/${mm}/${yyyy}`);
+}
+
+export const validateBirthDate = birthDate => {
+    let birth = new Date(birthDate);
     let today = new Date();
-    let diff = today-birthDate;
-    let age = Math.floor(diff/31557600000);
+    let diff = today - birth;
+    let age = Math.floor(diff / 31557600000);
     return age > 17;
+}
+
+export const getPagination = async (res, users, page = 1) => {
+    const limit = 3;
+    const total = Math.ceil(users.length / 3);
+
+    const start = (page - 1) * limit;
+    const end = page * limit;
+
+    const result = users.slice(start, end)
+    if (result.length === 0) return throwError("Page not found", 404);
+
+    return res.status(200).json({ result, totalPages: total, currentPage: parseInt(page) })
 }
