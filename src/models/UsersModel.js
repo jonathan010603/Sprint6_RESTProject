@@ -1,18 +1,22 @@
+import { onlyNum, validateBirthDate } from "../utils.js";
 import mongoose from "mongoose";
 
-const userSchema = new mongoose.Schema ({
-    name: {type: String, required: true},
-    cpf: {type: String, required: true, minLength: 11},
-    birthDate: {type: Date, required: true},
-    email: {type: String, required: true},
-    password: {type: String, required: true, minLength: 6},
-    address: {type: String, required: true},
-    number: {type: String, required: true},
-    complement: {type: String, required: true},
-    city: {type: String, required: true},
-    state: {type: String, required: true, minLength: 2},
-    country: {type: String, required: true},
-    zipCode: {type: String, required: true, minLength: 8}
+const userSchema = new mongoose.Schema({
+    name: { type: String, required: true },
+    cpf: { type: String, required: true, unique: true, set: raw => onlyNum(raw), minLength: 11, maxLength: 11 },
+    birthDate: { type: Date, required: true, validate: [validateBirthDate, "User must be 18 or older"] },
+    email: {
+        type: String, required: true,
+        match: [/^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/, 'Not a valid email']
+    },
+    password: { type: String, required: true, minLength: 6 },
+    address: { type: String, required: true },
+    number: { type: String, required: true },
+    complement: { type: String, required: true },
+    city: { type: String, required: true },
+    state: { type: String, required: true },
+    country: { type: String, required: true },
+    zipCode: { type: String, required: true, set: raw => onlyNum(raw), minLength: 8, maxLength: 8 }
 });
 
 export default mongoose.model('users', userSchema);
