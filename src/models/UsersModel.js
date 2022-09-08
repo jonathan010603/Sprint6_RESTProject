@@ -9,14 +9,15 @@ const userSchema = new mongoose.Schema({
         type: String, required: true,
         match: [/^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/, 'Not a valid email']
     },
-    password: { type: String, required: true, minLength: 6 },
+    password: { type: String, required: true, minLength: 6, select: false },
     address: { type: String, required: true },
     number: { type: String, required: true },
     complement: { type: String, required: true },
     city: { type: String, required: true },
     state: { type: String, required: true },
     country: { type: String, required: true },
-    zipCode: { type: String, required: true, set: raw => onlyNum(raw), minLength: 8, maxLength: 8 }
+    zipCode: { type: String, required: true, set: raw => onlyNum(raw), minLength: 8, maxLength: 8 },
+    __v: { type: Number, select: false }
 });
 
 export default mongoose.model('users', userSchema);

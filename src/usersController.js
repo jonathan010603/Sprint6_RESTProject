@@ -1,4 +1,4 @@
-import { throwError, errorHandler, checkModel } from './utils.js';
+import { throwError, errorHandler, checkModel, nameLike } from './utils.js';
 import Users from './models/UsersModel.js';
 
 export const addUser = (req, res) => {
@@ -30,10 +30,20 @@ export const getUsers = async (req, res) => {
 }
 
 export const getUserByName = async (req, res, queryName) => {
-    await Users.find({ 'name': queryName }, {})
+    const docsCount = await Users.countDocuments();
+    const totalPages = Math.ceil(docsCount / 3);
+    const queryPage = req.query.page;
+    if (queryPage > totalPages) return res.status(404).json({ message: "Page not found" })
+
+    const currentPage = parseInt(queryPage) || 1;
+
+    await Users.find({ 'name': nameLike(queryName) }, {})
+        .limit(3)
+        .skip((currentPage - 1) * 3)
+        .exec()
         .then(users => users.length === 0
             ? throwError("Name not found", 404)
-            : res.status(200).json(users)
+            : res.status(200).json({ users, totalPages, currentPage })
         )
         .catch(e => errorHandler(e, res))
 }
