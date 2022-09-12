@@ -1,7 +1,7 @@
 import express from 'express';
 import router from './routes.js';
 import mongoose from "mongoose";
-const uri = process.env.MONGO_URI || 'mongodb+srv://testing:testingcompass@cluster0.9i6srfv.mongodb.net/test';
+const uri = process.env.MONGO_URI;
 
 mongoose.connect(uri)
     .then(() => console.log('Connected to MongoDB'))
